@@ -1,5 +1,12 @@
+// допрацювати сімпл лайтбокс
+
+
+
+
+
 import SimpleLightbox from 'simplelightbox';
 import "simplelightbox/dist/simple-lightbox.min.css";
+import { Notify } from 'notiflix/build/notiflix-notify-aio';
 
 import { SearchService } from './search-service';
 
@@ -14,30 +21,70 @@ const Refs = {
 Refs.searchForm.addEventListener('submit', onSearch);
 Refs.loadMoreBtn.addEventListener ('click', onLoadMore)
 
-function onSearch (event) {
+async function onSearch (event) {
     event.preventDefault(); 
-        
+    clearGallery();    
     searchService.query = event.currentTarget.searchQuery.value;
+
+    if (searchService.query === '') {
+        Notify.failure('Enter a word to search for!');
+        return;
+    } 
+    
     searchService.resetPage();
-    searchService.fectchPhotos().then(createCard);
+    Refs.loadMoreBtn.classList.add('is-hidden');
+
+    const photos = await searchService.fectchPhotos();
+    Notify.info(`Found ${searchService.total} photos.`);
+    renderCards(photos);
 }
 
-function onLoadMore() { 
-    searchService.fectchPhotos();
+
+async function onLoadMore() { 
+    const photos = await searchService.fectchPhotos();
+    renderCards(photos);
+    
 }
     
-function createCard(photos) {
+function renderCards(photos) {
+ 
+    if (photos.length === 0 ) {
+        Notify.failure('Sorry! No photos available upon request. Try again.');
+        return;
+    } 
 
-    const card = photos.map(({
+    const cards = createCards(photos); 
+    Refs.galleryContainer.insertAdjacentHTML('beforeend', cards);
+
+    new SimpleLightbox('.gallery_card a');
+      
+    if (searchService.page * searchService.limit >= searchService.total) {
+        Refs.loadMoreBtn.classList.add('is-hidden');
+        Notify.success('Sol lucet omnibus');
+    } else {
+        Refs.loadMoreBtn.classList.remove('is-hidden'); 
+    }
+ }
+
+function clearGallery() {
+    Refs.galleryContainer.innerHTML = "";
+}
+ 
+
+function createCards(photos) {
+
+    return photos.map(({
         webformatURL,
         largeImageURL,
         tags,
         likes,
         views,
         comments,
-        downloads }) =>
+        downloads}) =>
         `<div class="gallery_card">
-            <img class = "gallery_img" src="${webformatURL}" alt="${tags}" loading="lazy" width = '300px'/>
+            <a href = "${largeImageURL}">
+                <img class = "gallery_img" src="${webformatURL}" alt="${tags}" loading="lazy" width = '300px'/>
+            </a>
             <div class="info">
                 <p class="info_item">
                     <b>Likes</b>
@@ -56,8 +103,7 @@ function createCard(photos) {
                     ${downloads}
                 </p>
             </div>
-        </div>`
-    ).join(""); 
+          
+        </div>`).join(""); 
     
-    Refs.galleryContainer.insertAdjacentHTML('beforeend', card);
 }
