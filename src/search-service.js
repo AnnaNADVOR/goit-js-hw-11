@@ -20,16 +20,15 @@ class SearchService {
     // }
 
     async fectchPhotos() {
-        this.page += 1;
+        this.page += 1; 
 
         const API_KEY = "39912863-1650dbe31ef88f10e118c8e6a";
         const URL = `https://pixabay.com/api/?key=${API_KEY}&q=${this.searchQuery}&image_type=photo&orintation=horizontal&safesearch=true&per_page=${this.limit}&page=${this.page}`;
-           const response = await axios.get(URL);
-           
-        this.total = response.data.totalHits;
-       
-           return response.data.hits;
+        const response = await axios.get(URL);
 
+        this.total = response.data.totalHits;
+        
+        return response.data.hits;
     }
 
     resetPage() {

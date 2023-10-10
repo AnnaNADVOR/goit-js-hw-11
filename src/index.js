@@ -1,9 +1,3 @@
-// допрацювати сімпл лайтбокс
-
-
-
-
-
 import SimpleLightbox from 'simplelightbox';
 import "simplelightbox/dist/simple-lightbox.min.css";
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
@@ -27,8 +21,8 @@ async function onSearch (event) {
     searchService.query = event.currentTarget.searchQuery.value;
 
     if (searchService.query === '') {
-        Notify.failure('Enter a word to search for!');
-        return;
+        return  Notify.failure('Enter a word to search for!');
+        
     } 
     
     searchService.resetPage();
@@ -37,30 +31,32 @@ async function onSearch (event) {
     const photos = await searchService.fectchPhotos();
     Notify.info(`Found ${searchService.total} photos.`);
     renderCards(photos);
+   
 }
 
 
 async function onLoadMore() { 
     const photos = await searchService.fectchPhotos();
     renderCards(photos);
+   
     
 }
     
 function renderCards(photos) {
  
     if (photos.length === 0 ) {
-        Notify.failure('Sorry! No photos available upon request. Try again.');
-        return;
+        return  Notify.failure('Sorry, there are no images matching your search query. Please try again.');
+        
     } 
 
     const cards = createCards(photos); 
     Refs.galleryContainer.insertAdjacentHTML('beforeend', cards);
 
-    new SimpleLightbox('.gallery_card a');
-      
+    new SimpleLightbox('.gallery_card a').refresh(); 
+    
     if (searchService.page * searchService.limit >= searchService.total) {
         Refs.loadMoreBtn.classList.add('is-hidden');
-        Notify.success('Sol lucet omnibus');
+        Notify.success(`We're sorry, but you've reached the end of search results.`);
     } else {
         Refs.loadMoreBtn.classList.remove('is-hidden'); 
     }
@@ -70,7 +66,6 @@ function clearGallery() {
     Refs.galleryContainer.innerHTML = "";
 }
  
-
 function createCards(photos) {
 
     return photos.map(({
@@ -107,3 +102,4 @@ function createCards(photos) {
         </div>`).join(""); 
     
 }
+
