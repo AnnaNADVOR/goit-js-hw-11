@@ -40,7 +40,7 @@ class SearchService {
     }
 
     set query (newQuery) {
-        this.searchQuery = newQuery
+        this.searchQuery = newQuery;
     }
 }
 

@@ -15,31 +15,34 @@ const Refs = {
 Refs.searchForm.addEventListener('submit', onSearch);
 Refs.loadMoreBtn.addEventListener ('click', onLoadMore)
 
-async function onSearch (event) {
-    event.preventDefault(); 
-    clearGallery();    
-    searchService.query = event.currentTarget.searchQuery.value;
+async function onSearch(event) {
+    try {
+        event.preventDefault();     
+        clearGallery();    
+        searchService.query = event.currentTarget.searchQuery.value;
 
-    if (searchService.query === '') {
+        if (searchService.query === '') {
         return  Notify.failure('Enter a word to search for!');
-        
-    } 
+        } 
     
-    searchService.resetPage();
-    Refs.loadMoreBtn.classList.add('is-hidden');
+        searchService.resetPage();
+        Refs.loadMoreBtn.classList.add('is-hidden');
 
-    const photos = await searchService.fectchPhotos();
-    Notify.info(`Found ${searchService.total} photos.`);
-    renderCards(photos);
-   
+        const photos = await searchService.fectchPhotos();
+        Notify.info(`Found ${searchService.total} photos.`);
+        renderCards(photos);   
+    } catch (error) {
+        Notify.failure('Oops! Something went wrong. Try again.');
+    }       
 }
 
-
 async function onLoadMore() { 
-    const photos = await searchService.fectchPhotos();
-    renderCards(photos);
-   
-    
+    try {
+        const photos = await searchService.fectchPhotos();
+        renderCards(photos);   
+    } catch (error) {
+        Notify.failure('Oops! Something went wrong. Try again.');
+    }      
 }
     
 function renderCards(photos) {
